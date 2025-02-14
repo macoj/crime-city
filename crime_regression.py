@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.linear_model import Ridge
-from lib.helpers import seaborn_styles
+from lib.helpers import seaborn_styles, CRIME_TYPES
 
 seaborn_styles(sns)
 
@@ -183,7 +183,7 @@ def main():
     incoming_commuters.columns = ["City", "Total_Commuters"]
     merged_df = crime_df.merge(incoming_commuters, left_on="CSP Name", right_on="City", how="inner")
 
-    for crime in ['Total']:
+    for crime in CRIME_TYPES:
         final_df = merged_df.copy()
         population_df.rename(columns={"Local Authority": "CSP Name"}, inplace=True)
         final_df = final_df.merge(population_df[["CSP Name", "Population"]], on="CSP Name", how="inner")

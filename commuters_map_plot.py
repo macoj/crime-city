@@ -83,10 +83,10 @@ legend_elements = [
                 label='City Size (proportional to population)')
 ]
 
-legend_ax.legend(handles=legend_elements, loc='center', frameon=True,
-                 facecolor='white', edgecolor='none', fontsize=12)
+legend_ax.legend(handles=legend_elements, loc='upper right', frameon=True,
+                 facecolor='white', edgecolor='none', prop={'family': 'Times New Roman', 'size': 32})  # Increased font size
 legend_ax.axis('off')
 
 plt.tight_layout()
-plt.savefig("output/uk_city_flows.pdf", dpi=300, bbox_inches='tight', pad_inches=0)
+plt.savefig("output/great_britain_commuting.pdf", dpi=300, bbox_inches='tight', pad_inches=0)
 plt.show()

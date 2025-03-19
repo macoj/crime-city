@@ -174,9 +174,9 @@ def plot_and_report_results(
 
 # === Main script ===
 def main():
-    commuting_df = pd.read_csv("data/incoming_commuters.csv")
+    commuting_df = pd.read_csv("old/incoming_commuters.csv")
     crime_df = pd.read_csv("data/crime_totals_scot.csv")
-    population_df = pd.read_csv("data/population_sorted.csv")
+    population_df = pd.read_csv("old/population_sorted.csv")
 
     commuting_df.rename(columns={"Unnamed: 0": "City"}, inplace=True)
     incoming_commuters = commuting_df.set_index("City").sum(axis=0).reset_index()

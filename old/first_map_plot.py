@@ -2,7 +2,7 @@ import pandas as pd
 import geopandas as gpd
 import matplotlib.pyplot as plt
 import networkx as nx
-from lib.uk_lat_lng import uk_lat_lng  # Pre-defined UK city coordinates
+from old.uk_lat_lng import uk_lat_lng  # Pre-defined UK city coordinates
 
 file_path = "../data/A.csv"
 df = pd.read_csv(file_path, index_col=0)

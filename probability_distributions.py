@@ -8,9 +8,9 @@ from lib.helpers import seaborn_styles, CRIME_TYPES
 seaborn_styles(sns)
 
 # === Load Data ===
-commuting_df = pd.read_csv("data/incoming_commuters.csv")
+commuting_df = pd.read_csv("old/incoming_commuters.csv")
 crime_df = pd.read_csv("data/crime_totals_scot.csv")
-population_df = pd.read_csv("data/population_sorted.csv")
+population_df = pd.read_csv("old/population_sorted.csv")
 
 commuting_df.rename(columns={"Unnamed: 0": "City"}, inplace=True)
 

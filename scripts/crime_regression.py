@@ -3,7 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.linear_model import Ridge
-from lib.helpers import seaborn_styles, CRIME_TYPES
+
+from config import PREPROCESSED_POPULATION_MATRIX_CSV, PREPROCESSED_CRIME_DATA_CSV
+from lib.helpers import seaborn_styles
 
 seaborn_styles(sns)
 
@@ -71,7 +73,7 @@ def plot_and_report_results(
     axes[0].set_xlabel("Log(Population)")
     axes[0].set_ylabel("Log(Crime Total)")
     axes[0].set_title("Scaling Model")
-    axes[0].set_ylim(5, 12)
+    axes[0].set_ylim(0, 7)
     beta_population = ridge_scaling.coef_[0]
     axes[0].text(
         0.05, 0.8, f"β_P = {beta_population:.2f}",
@@ -90,7 +92,7 @@ def plot_and_report_results(
     )
     axes[1].set_xlabel("β_C * log(Commuters) + β_P * log(Population)")
     axes[1].set_ylabel("")
-    axes[1].set_ylim(5, 12)
+    axes[1].set_ylim(0, 7)
     axes[1].set_title("Cobb-Douglas Model")
     beta_commuters = ridge_cobb.coef_[0]
     beta_population = ridge_cobb.coef_[1]
@@ -113,7 +115,7 @@ def plot_and_report_results(
     )
     axes[2].set_xlabel("β_C * log(Commuters) + β_P * log(Population)")
     axes[2].set_ylabel("")
-    axes[2].set_ylim(5, 12)
+    axes[2].set_ylim(0, 7)
     axes[2].set_title("Translog Model")
     beta_coeffs = ridge_translog.coef_
     axes[2].text(
@@ -173,40 +175,34 @@ def plot_and_report_results(
 
 
 # === Main script ===
-def main():
-    commuting_df = pd.read_csv("old/incoming_commuters.csv")
-    crime_df = pd.read_csv("data/crime_totals_scot.csv")
-    population_df = pd.read_csv("old/population_sorted.csv")
+def crime_regression_plot():
+    commuting_df = pd.read_csv(PREPROCESSED_POPULATION_MATRIX_CSV)
+    crime_df = pd.read_csv(PREPROCESSED_CRIME_DATA_CSV)
+    population_df = pd.read_csv('data/population_sorted.csv')
 
     commuting_df.rename(columns={"Unnamed: 0": "City"}, inplace=True)
     incoming_commuters = commuting_df.set_index("City").sum(axis=0).reset_index()
     incoming_commuters.columns = ["City", "Total_Commuters"]
     merged_df = crime_df.merge(incoming_commuters, left_on="CSP Name", right_on="City", how="inner")
 
-    for crime in CRIME_TYPES:
-        final_df = merged_df.copy()
-        population_df.rename(columns={"Local Authority": "CSP Name"}, inplace=True)
-        final_df = final_df.merge(population_df[["CSP Name", "Population"]], on="CSP Name", how="inner")
+    final_df = merged_df.copy()
+    population_df.rename(columns={"Local Authority": "CSP Name"}, inplace=True)
+    final_df = final_df.merge(population_df[["CSP Name", "Population"]], on="CSP Name", how="inner")
+    # Apply log transformation
+    final_df["log_CrimeTotal"] = np.log1p(final_df['Number of Offences'].clip(lower=0))
+    final_df["log_Commuters"] = np.log(final_df["Total_Commuters"])
+    final_df["log_Population"] = np.log(final_df["Population"])
+    final_df.dropna(inplace=True)
 
-        # Apply log transformation
-        final_df["log_CrimeTotal"] = np.log(final_df[crime])
-        final_df["log_Commuters"] = np.log(final_df["Total_Commuters"])
-        final_df["log_Population"] = np.log(final_df["Population"])
-        final_df.dropna(inplace=True)
+    # === Fit each model via newly defined functions ===
+    ridge_scaling, aic_scaling, bic_scaling = run_scaling_model(final_df)
+    ridge_cobb, aic_cobb, bic_cobb = run_cobb_douglas_model(final_df)
+    ridge_translog, aic_translog, bic_translog = run_translog_model(final_df)
 
-        # === Fit each model via newly defined functions ===
-        ridge_scaling, aic_scaling, bic_scaling = run_scaling_model(final_df)
-        ridge_cobb, aic_cobb, bic_cobb = run_cobb_douglas_model(final_df)
-        ridge_translog, aic_translog, bic_translog = run_translog_model(final_df)
-
-        # === Plot everything together & print statistics ===
-        plot_and_report_results(
-            final_df, crime,
-            ridge_scaling, aic_scaling, bic_scaling,
-            ridge_cobb, aic_cobb, bic_cobb,
-            ridge_translog, aic_translog, bic_translog
-        )
-
-
-if __name__ == "__main__":
-    main()
+    # === Plot everything together & print statistics ===
+    plot_and_report_results(
+        final_df, 'offences',
+        ridge_scaling, aic_scaling, bic_scaling,
+        ridge_cobb, aic_cobb, bic_cobb,
+        ridge_translog, aic_translog, bic_translog
+    )

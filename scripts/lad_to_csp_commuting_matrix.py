@@ -1,10 +1,8 @@
 import pandas as pd
-from lib.logger import info, warning, success
 
-PREPROCESSED_LAD_INFORMATION_CSV = 'data/preprocessed/lad_information.csv'
-PREPROCESSED_POPULATION_MATRIX_CSV = 'data/preprocessed/population_matrix.csv'
-PREPROCESSED_CRIME_DATA_CSV = 'data/preprocessed/crime_data_by_csp.csv'
-PREPROCESSED_CSP_LOCATIONS = 'data/preprocessed/csp_locations.csv'
+from config import PREPROCESSED_LAD_INFORMATION_CSV, PREPROCESSED_CRIME_DATA_CSV, PREPROCESSED_POPULATION_MATRIX_CSV, \
+    PREPROCESSED_CSP_LOCATIONS
+from lib.logger import info, warning, success
 
 
 def load_and_merge_data():
@@ -207,7 +205,7 @@ def check_matching_csps():
         info(f"Crime Data CSP not found in Matrix CSPs: {csp}")
 
 
-def main():
+def lad_to_csp_commuting_matrix_preprocess():
     load_and_merge_data()
 
     fix_csp_names()
@@ -220,6 +218,3 @@ def main():
 
     check_matching_csps()
 
-
-if __name__ == '__main__':
-    main()

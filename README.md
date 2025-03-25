@@ -20,7 +20,7 @@ pip install -r requirements.txt
 
 2. **Run the Pipeline**
 
-Make sure you have **Python 3.x** and the required packages installed:
+Simply run the main pipeline script, and the output will be stored in **./output**.
 
    ```bash
 python pipeline.py
@@ -31,7 +31,7 @@ This script will:
 -	Preprocess and match LAD data to CSP data.
 -	Merge duplicated CSPs in the population matrix.
 -	Plot the commuting map. 
-- Plot the crime regression results.
+-   Plot the crime regression results.
 
 ---
 

@@ -1,4 +1,4 @@
-# Great Britain Crime & Commuters Analysis
+# England and Wales Commuters Crime Analysis
 
 This repository provides data and scripts to explore the relationship between population, commuter inflows, and crime in England and Wales.
 

@@ -3,6 +3,10 @@ import geopandas as gpd
 import matplotlib.pyplot as plt
 import networkx as nx
 from matplotlib.lines import Line2D
+from lad_to_csp_commuting_matrix import (PREPROCESSED_POPULATION_MATRIX_CSV,
+                                         PREPROCESSED_CRIME_DATA_CSV,
+                                         PREPROCESSED_LAD_INFORMATION_CSV,
+                                         PREPROCESSED_CSP_LOCATIONS)
 
 file_path = "data/population_matrix.csv"
 
@@ -17,22 +21,20 @@ def map_plot(ax):
 
 df = pd.read_csv(file_path, index_col=0)
 
-local_authorities = pd.read_csv("data/new/local_authorities.csv", delimiter=";")
+csps = pd.read_csv(PREPROCESSED_CSP_LOCATIONS, delimiter=",")
 
-lad_to_csp = pd.read_csv("data/new/lad_to_csp.csv", delimiter=";")
+population_matrix = pd.read_csv(file_path, delimiter=",")
 
-population_matrix = pd.read_csv("data/population_matrix.csv", delimiter=",")
-
-local_authorities["lat"] = (
-    local_authorities["lat"].astype(str).str.replace(",", ".").astype(float)
+csps["lat"] = (
+    csps["lat"].astype(str).str.replace(",", ".").astype(float)
 )
-local_authorities["long"] = (
-    local_authorities["long"].astype(str).str.replace(",", ".").astype(float)
+csps["long"] = (
+    csps["long"].astype(str).str.replace(",", ".").astype(float)
 )
 
 valid_cities = {
-    row["nice-name"]: (row["lat"], row["long"], row['lad_code'])
-    for _, row in local_authorities.dropna(subset=["lat", "long", "lad_code"]).iterrows()
+    row["csp-name"]: (row["lat"], row["long"])
+    for _, row in csps.iterrows()
 }
 
 cities = population_matrix["City"].unique()
@@ -57,7 +59,7 @@ map_plot(ax)
 ax.set_xlim(-8.5, 2.5)
 ax.set_ylim(49.5, 59.5)
 
-for (city, (lon, lat, code)) in city_locations.items():
+for (city, (lon, lat)) in city_locations.items():
     ax.scatter(lon, lat, color="blue", alpha=0.6)
 
 incoming_color = '#FF0000'  # Pure red
@@ -72,8 +74,8 @@ for city1, coords1 in city_locations.items():
                 G.add_edge(city1, city2, weight=weight)
 
 for city1, city2, data_dict in G.edges(data=True):
-    (lon1, lat1, _) = city_locations[city1]
-    (lon2, lat2, _) = city_locations[city2]
+    (lon1, lat1) = city_locations[city1]
+    (lon2, lat2) = city_locations[city2]
 
     mid_x = (lon1 + lon2) / 2
     mid_y = (lat1 + lat2) / 2

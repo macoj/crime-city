@@ -38,3 +38,4 @@ This script will:
 ## TODO
 
 - As _population_sorted.csv_ contains LAD values, it must be preprocessed in the same way as the Crime Data and Population Matrix.
+- Improve Plots quality

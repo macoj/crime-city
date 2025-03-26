@@ -73,7 +73,7 @@ def plot_and_report_results(
     axes[0].set_xlabel("Log(Population)")
     axes[0].set_ylabel("Log(Crime Total)")
     axes[0].set_title("Scaling Model")
-    axes[0].set_ylim(0, 7)
+    axes[0].set_ylim(4, 12)
     beta_population = ridge_scaling.coef_[0]
     axes[0].text(
         0.05, 0.8, f"β_P = {beta_population:.2f}",
@@ -92,7 +92,7 @@ def plot_and_report_results(
     )
     axes[1].set_xlabel("β_C * log(Commuters) + β_P * log(Population)")
     axes[1].set_ylabel("")
-    axes[1].set_ylim(0, 7)
+    axes[1].set_ylim(4, 12)
     axes[1].set_title("Cobb-Douglas Model")
     beta_commuters = ridge_cobb.coef_[0]
     beta_population = ridge_cobb.coef_[1]
@@ -115,7 +115,7 @@ def plot_and_report_results(
     )
     axes[2].set_xlabel("β_C * log(Commuters) + β_P * log(Population)")
     axes[2].set_ylabel("")
-    axes[2].set_ylim(0, 7)
+    axes[2].set_ylim(4, 12)
     axes[2].set_title("Translog Model")
     beta_coeffs = ridge_translog.coef_
     axes[2].text(

@@ -26,8 +26,9 @@ def filter_offences_and_aggregate_by_quarter():
             input_file,
             chunksize=chunk_size,
             dtype={
-                'Offence Code': str,  # Ensure offence codes are read as strings
-                'Financial Quarter': str  # Ensure financial quarters are read as strings
+                'Offence Code': str,         # Ensure offence codes are read as strings
+                'Financial Quarter': str,    # We'll overwrite this anyway
+                'Number of Offences': float  # Make sure this is numeric so it can be summed
             }
         )
 
@@ -48,13 +49,19 @@ def filter_offences_and_aggregate_by_quarter():
         if all_filtered_chunks:
             combined_df = pd.concat(all_filtered_chunks, ignore_index=True)
 
-            # Group by all columns except 'Financial Quarter'
-            group_cols = [col for col in combined_df.columns if col != "Financial Quarter"]
+            # 1) Overwrite the financial quarter (optional, if you want "ALL" explicitly)
+            combined_df["Financial Quarter"] = "ALL"
 
-            # Aggregate data with sum for any numeric columns
-            agg_df = combined_df.groupby(group_cols, dropna=False).size().reset_index(name='Count')
+            # 2) Group by only CSP Name to sum across *all* quarters
+            #    If you prefer to keep a "Financial Quarter" column with "ALL",
+            #    you can group by ["Financial Quarter", "CSP Name"] instead.
+            agg_df = (
+                combined_df
+                .groupby("CSP Name", dropna=False)["Number of Offences"]
+                .sum()
+                .reset_index(name="Number of Offences")
+            )
 
-            # Save to CSV
             agg_df.to_csv(PREPROCESSED_CRIME_DATA_CSV, index=False)
 
             success(f"\nProcessing complete:")

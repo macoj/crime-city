@@ -96,7 +96,7 @@ def preprocessing_crime_data():
         'Somerset East_Mendip': 'Somerset', # @todo check it later
     }
 
-    crime_data = pd.read_csv("data/crime_data_by_csp.csv")
+    crime_data = pd.read_csv(PREPROCESSED_CRIME_DATA_CSV)
 
     crime_data["CSP Name"] = crime_data["CSP Name"].replace(fix_csp_names_in_crime_data)
 

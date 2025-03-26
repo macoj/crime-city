@@ -142,7 +142,7 @@ def plot_and_report_results(
     axes[3].set_title("ΔAIC & ΔBIC Comparison")
     axes[3].set_ylabel("Δ Score")
     axes[3].axhline(y=0, color="black", linestyle="-", linewidth=0.5)
-    axes[3].set_xticklabels(axes[3].get_xticklabels(), rotation=360)
+    # axes[3].set_xticklabels(axes[3].get_xticklabels(), rotation=360)
 
     plt.tight_layout()
     plt.savefig(f'output/scaling_vs_cobb_translog_deltas_{crime}.pdf')

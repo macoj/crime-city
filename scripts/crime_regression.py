@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.linear_model import Ridge
 
-from config import PREPROCESSED_POPULATION_MATRIX_CSV, PREPROCESSED_CRIME_DATA_CSV
+from config import PREPROCESSED_POPULATION_MATRIX_CSV, PREPROCESSED_CRIME_DATA_CSV, PREPROCESSED_CSP_POPULATION_CSV
 from lib.helpers import seaborn_styles
 
 seaborn_styles(sns)
@@ -178,7 +178,7 @@ def plot_and_report_results(
 def crime_regression_plot():
     commuting_df = pd.read_csv(PREPROCESSED_POPULATION_MATRIX_CSV)
     crime_df = pd.read_csv(PREPROCESSED_CRIME_DATA_CSV)
-    population_df = pd.read_csv('data/population_sorted.csv')
+    population_df = pd.read_csv(PREPROCESSED_CSP_POPULATION_CSV)
 
     commuting_df.rename(columns={"Unnamed: 0": "City"}, inplace=True)
     incoming_commuters = commuting_df.set_index("City").sum(axis=0).reset_index()

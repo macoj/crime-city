@@ -2,7 +2,7 @@ from scripts.crime_regression import crime_regression_plot
 from scripts.preprocess_matrix_duplicated_cities import merge_population_matrix_duplicated_cities
 from scripts.commuters_map_plot import plot_commuting_map
 from scripts.filter_offences_and_aggregate_by_quarter import filter_offences_and_aggregate_by_quarter
-from scripts.lad_to_csp_commuting_matrix import lad_to_csp_commuting_matrix_preprocess
+from scripts.lad_to_csp_commuting import lad_to_csp_commuting_preprocess
 
 from lib.logger import success
 
@@ -15,7 +15,7 @@ def run_pipeline():
         ),
         (
             "Preprocessing and Matching LAD to CSP on commuting matrix and crime data",
-            lad_to_csp_commuting_matrix_preprocess
+            lad_to_csp_commuting_preprocess
         ),
         (
             "Merging duplicated CSPs in population matrix",

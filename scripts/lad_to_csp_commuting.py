@@ -1,7 +1,8 @@
 import pandas as pd
 
 from config import PREPROCESSED_LAD_INFORMATION_CSV, PREPROCESSED_CRIME_DATA_CSV, PREPROCESSED_POPULATION_MATRIX_CSV, \
-    PREPROCESSED_CSP_LOCATIONS
+    PREPROCESSED_CSP_LOCATIONS, PREPROCESSED_CSP_POPULATION_CSV, LOG_MATCHING_CSPS_DATA
+from lib.helpers import NON_ENGLAND_WALES_CSP_POPULATION_CSV
 from lib.logger import info, warning, success
 
 
@@ -164,7 +165,11 @@ def preprocessing_population_matrix():
     info(f"\nUpdated matrix saved to '{PREPROCESSED_POPULATION_MATRIX_CSV}'.")
 
 
-def check_matching_csps():
+def check_matching_matrix_csps():
+    info('\n---------------------------------------------------------')
+    info('---------Matching CSPs (Crime vs Commuters)--------------')
+    info('---------------------------------------------------------')
+
     non_england_wales_csp = {
         "Clackmannanshire", "Dumfries and Galloway", "East Ayrshire", "East Lothian",
         "East Renfrewshire", "Eilean Siar", "Falkirk", "Fife", "Highland", "Inverclyde",
@@ -187,7 +192,7 @@ def check_matching_csps():
 
     # a) How many matrix CSPs appear in crime_data_by_csp?
     matrix_in_crime = [c for c in matrix_csps if c in crime_totals_csps]
-    success(f"\nMatrix CSPs count: {len(matrix_csps)}")
+    success(f"Matrix CSPs count: {len(matrix_csps)}")
     success(f"Crime Data CSPs count: {len(crime_totals_csps)}")
     success(f"Matrix CSPs also in Crime Data CSPs: {len(matrix_in_crime)}")
 
@@ -205,7 +210,111 @@ def check_matching_csps():
         info(f"Crime Data CSP not found in Matrix CSPs: {csp}")
 
 
-def lad_to_csp_commuting_matrix_preprocess():
+def preprocess_lad_population_to_csp():
+    # Dictionary to fix known Local Authority name variations
+    fix_lad_names_dict = {
+        'Westminster City of London': 'City of London',
+        "King’s Lynn and West Norfolk": 'Kings Lynn and West Norfolk',
+        'Rotherham ': 'Rotherham',
+        'Bridgend ': 'Bridgend',
+        'Kirklees ': 'Kirklees',
+        'Knowsley ': 'Knowsley',
+        'Oldham ': 'Oldham',
+        'Dudley ': 'Dudley',
+        'Sandwell ': 'Sandwell',
+        'York UA': 'City of York',
+    }
+
+    # 1) Load the CSVs
+    lad_population = pd.read_csv("data/lad_population.csv")
+    lad_information = pd.read_csv(PREPROCESSED_LAD_INFORMATION_CSV)
+
+    # 2) Apply name fixes from the dictionary to 'Local Authority'
+    lad_population["Local Authority"] = lad_population["Local Authority"].apply(
+        lambda x: fix_lad_names_dict.get(x, x)
+    )
+
+    # 3) Merge on the 'Local Authority' (lad_population) and 'nice-name' (lad_information)
+    merged = pd.merge(
+        lad_population,
+        lad_information[["nice-name", "csp-name"]],
+        left_on="Local Authority",
+        right_on="nice-name",
+        how="left"
+    )
+
+    # 4) If a match is found (csp-name not NaN), replace 'Local Authority' with 'csp-name'
+    merged["Local Authority"] = merged.apply(
+        lambda row: row["csp-name"] if pd.notnull(row["csp-name"]) else row["Local Authority"],
+        axis=1
+    )
+
+    # 5) Remove the suffix " UA" if it appears at the end of the Local Authority name
+    merged["Local Authority"] = merged["Local Authority"].str.replace(r"\sUA$", "", regex=True)
+
+    # 6) Drop the merge-only helper columns
+    merged.drop(columns=["nice-name", "csp-name"], inplace=True)
+
+    # 7) Merge (aggregate) any remaining duplicates in "Local Authority"
+    #    For numeric columns, we sum them; for non-numeric, we keep the first value.
+    #    Modify the aggregation logic as appropriate for your dataset.
+
+    # Identify all columns except 'Local Authority'
+    other_cols = [col for col in merged.columns if col != "Local Authority"]
+
+    # Build an aggregation dictionary: sum for numeric, first for everything else
+    agg_funcs = {}
+    for col in other_cols:
+        if pd.api.types.is_numeric_dtype(merged[col]):
+            agg_funcs[col] = 'sum'
+        else:
+            agg_funcs[col] = 'first'
+
+    # Group by 'Local Authority' and aggregate
+    final_df = merged.groupby("Local Authority", as_index=False).agg(agg_funcs)
+
+    # 8) Save the updated DataFrame
+    final_df.to_csv(PREPROCESSED_CSP_POPULATION_CSV, index=False)
+
+    success(f"Preprocessing complete. Updated file saved to {PREPROCESSED_CSP_POPULATION_CSV}\n")
+
+
+def check_matching_population_csps():
+    info('\n----------------------------------------------------------')
+    info('---------Matching CSPs (Crime vs Population)--------------')
+    info('----------------------------------------------------------')
+
+    # 1) Read the newly updated lad population CSV
+    updated_population = pd.read_csv(PREPROCESSED_CSP_POPULATION_CSV)
+    population_csps = updated_population["Local Authority"].unique().tolist()
+
+    # 2) Read the crime data CSV and get unique CSPs
+    crime_data = pd.read_csv(PREPROCESSED_CRIME_DATA_CSV)
+    crime_data_csps = crime_data["CSP Name"].unique().tolist()
+
+    # --- Compare the two sets (Population CSPs vs. Crime Data CSPs) ---
+
+    # a) How many population CSPs appear in crime_data?
+    population_in_crime = [c for c in population_csps if c in crime_data_csps]
+    success(f"Population CSV CSPs count: {len(population_csps)}")
+    success(f"Crime Data CSPs count: {len(crime_data_csps)}")
+    success(f"Population CSPs also in Crime Data: {len(population_in_crime)}")
+
+    # b) Which Population CSPs are NOT in crime_data?
+    not_found_in_crime_data = [c for c in population_csps if c not in crime_data_csps]
+    for csp in not_found_in_crime_data:
+        if csp in NON_ENGLAND_WALES_CSP_POPULATION_CSV:
+            warning(f"Population CSP not found in Crime Data: {csp} (Not from England or Wales)")
+        else:
+            info(f"Population CSP not found in Crime Data: {csp}")
+
+    # c) Which Crime Data CSPs are NOT in the Population CSV?
+    not_found_in_population = [c for c in crime_data_csps if c not in population_csps]
+    for csp in not_found_in_population:
+        info(f"Crime Data CSP not found in Population CSV: {csp}")
+
+
+def lad_to_csp_commuting_preprocess():
     load_and_merge_data()
 
     fix_csp_names()
@@ -216,5 +325,10 @@ def lad_to_csp_commuting_matrix_preprocess():
 
     preprocessing_population_matrix()
 
-    check_matching_csps()
+    if LOG_MATCHING_CSPS_DATA:
+        check_matching_matrix_csps()
 
+    preprocess_lad_population_to_csp()
+
+    if LOG_MATCHING_CSPS_DATA:
+        check_matching_population_csps()

@@ -37,6 +37,6 @@ This script will:
 
 ## TODO
 
--[x] As _population_sorted.csv_ contains LAD values, it must be preprocessed in the same way as the Crime Data and Population Matrix.
--[ ] Analyze whether the diagonals of the commuters matrix should be considered as the total population of a city
--[ ] Improve Plots quality
+- [x] As _population_sorted.csv_ contains LAD values, it must be preprocessed in the same way as the Crime Data and Population Matrix.
+- [ ] Analyze whether the diagonals of the commuters matrix should be considered as the total population of a city
+- [ ] Improve Plots quality

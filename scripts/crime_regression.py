@@ -58,6 +58,7 @@ def run_translog_model(final_df):
 
 
 def plot_and_report_results(
+        output_path,
         final_df, crime,
         ridge_scaling, aic_scaling, bic_scaling,
         ridge_cobb, aic_cobb, bic_cobb,
@@ -145,7 +146,7 @@ def plot_and_report_results(
     # axes[3].set_xticklabels(axes[3].get_xticklabels(), rotation=360)
 
     plt.tight_layout()
-    plt.savefig(f'output/scaling_vs_cobb_translog_deltas_{crime}.pdf')
+    plt.savefig(f'{output_path}/scaling_vs_cobb_translog_deltas_{crime}.pdf')
     plt.show()
 
     # === Print model equations and metric deltas ===
@@ -175,7 +176,7 @@ def plot_and_report_results(
 
 
 # === Main script ===
-def crime_regression_plot():
+def crime_regression_plot(output_path):
     commuting_df = pd.read_csv(PREPROCESSED_POPULATION_MATRIX_CSV)
     crime_df = pd.read_csv(PREPROCESSED_CRIME_DATA_CSV)
     population_df = pd.read_csv(PREPROCESSED_CSP_POPULATION_CSV)
@@ -201,6 +202,7 @@ def crime_regression_plot():
 
     # === Plot everything together & print statistics ===
     plot_and_report_results(
+        output_path,
         final_df, 'offences',
         ridge_scaling, aic_scaling, bic_scaling,
         ridge_cobb, aic_cobb, bic_cobb,

@@ -77,3 +77,17 @@ NON_ENGLAND_WALES_CSP_POPULATION_CSV = {
     "Omagh",
     "Strabane",
 }
+
+offence_dict = {
+    "34A": "Robbery: Robbery of business property",
+    "34B": "Robbery: Robbery of personal property",
+    "29": "Burglary: Aggravated burglary in a dwelling (outcome only)",
+    "28B": "Burglary: Attempted burglary in a dwelling (outcome only)",
+    "28D": "Burglary: Attempted distraction burglary in a dwelling (outcome only)",
+    "28A": "Burglary: Burglary in a dwelling (outcome only)",
+    "28C": "Burglary: Distraction burglary in a dwelling (outcome only)",
+    "31": "Burglary: Aggravated burglary in a building other than a dwelling (outcome only)",
+    "30B": "Burglary: Attempted burglary in a building other than a dwelling (outcome only)",
+    "30A": "Burglary: Burglary in a building other than a dwelling (outcome only)",
+    "39": "Theft: Theft from the person"
+}

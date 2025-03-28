@@ -7,12 +7,7 @@ from matplotlib.lines import Line2D
 from config import PREPROCESSED_CSP_LOCATIONS, PREPROCESSED_POPULATION_MATRIX_CSV, SHOW_CSP_NAMES_ON_PLOT
 
 
-def plot_commuting_map(
-    file_path: str = PREPROCESSED_POPULATION_MATRIX_CSV,
-    output_path: str = "output/great_britain_commuting.pdf",
-    min_weight: int = 500,
-    figsize: tuple = (22, 22),
-):
+def plot_commuting_map(output_path):
     def map_plot(ax):
         counties = gpd.read_file('lib/uk_admin_map_shapefile/Map_UK.shp')
         counties = counties[counties["NAME_1"] != "Northern Ireland"]
@@ -20,9 +15,12 @@ def plot_commuting_map(
         counties = counties.to_crs(epsg=4326)
         counties.plot(ax=ax, color='whitesmoke', edgecolor='gainsboro')
 
-    df = pd.read_csv(file_path, index_col=0)
+    min_weight = 500
+    figsize = (22, 22)
+
+    df = pd.read_csv(PREPROCESSED_POPULATION_MATRIX_CSV, index_col=0)
     csps = pd.read_csv(PREPROCESSED_CSP_LOCATIONS, delimiter=",")
-    population_matrix = pd.read_csv(file_path, delimiter=",")
+    population_matrix = pd.read_csv(PREPROCESSED_POPULATION_MATRIX_CSV, delimiter=",")
 
     csps["lat"] = csps["lat"].astype(str).str.replace(",", ".").astype(float)
     csps["long"] = csps["long"].astype(str).str.replace(",", ".").astype(float)
@@ -102,5 +100,5 @@ def plot_commuting_map(
     legend_ax.axis('off')
 
     plt.tight_layout()
-    plt.savefig(output_path, dpi=300, bbox_inches='tight', pad_inches=0)
+    plt.savefig(f'{output_path}/england_wales_commuting.pdf', dpi=300, bbox_inches='tight', pad_inches=0)
     plt.show()

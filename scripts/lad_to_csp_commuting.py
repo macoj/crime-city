@@ -91,7 +91,7 @@ def generate_csp_locations_by_lad_average():
 
 def preprocessing_crime_data():
     fix_csp_names_in_crime_data = {
-        'Westminster': 'City of London', # Westminster and City of London was merged
+        'Westminster': 'City of London', # Westminster and City of London were merged
         'Northern Devon': 'North Devon',
         'Somerset East_Mendip': 'Somerset', # @todo check it later
     }

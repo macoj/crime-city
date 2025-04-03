@@ -65,7 +65,7 @@ def fix_csp_names():
 def generate_csp_locations_by_lad_average():
     lad_information = pd.read_csv(PREPROCESSED_LAD_INFORMATION_CSV)
 
-    # @TODO SHOULD INCLUDE A VALIDATION => IF HAS LAT AND LONG AND NO CSP NAME, INCLUDE WITH THE LAD NAME ITSELF
+    # @TODO There are LADs without Latitude and Longitude
 
     csp_locations_df = lad_information
     columns_to_drop = [

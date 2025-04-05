@@ -2,8 +2,17 @@ import pandas as pd
 
 from config import PREPROCESSED_LAD_INFORMATION_CSV, PREPROCESSED_CRIME_DATA_CSV, PREPROCESSED_POPULATION_MATRIX_CSV, \
     PREPROCESSED_CSP_LOCATIONS, PREPROCESSED_CSP_POPULATION_CSV, LOG_MATCHING_CSPS_DATA
-from lib.helpers import NON_ENGLAND_WALES_CSP_POPULATION_CSV
+from lib.helpers import NON_ENGLAND_WALES_CSP_POPULATION_CSV, MISSING_LAD_COORDS
 from lib.logger import info, warning, success
+
+
+def patch_missing_coordinates(df):
+    for lad, (lon, lat) in MISSING_LAD_COORDS.items():
+        match = df['nice-name'] == lad
+        if match.any():
+            df.loc[match, 'lat'] = df.loc[match, 'lat'].fillna(lat)
+            df.loc[match, 'long'] = df.loc[match, 'long'].fillna(lon)
+    return df
 
 
 def load_and_merge_data():
@@ -16,6 +25,11 @@ def load_and_merge_data():
     success("'Lad Information' and 'Lad to CSP' data loaded")
     lad_information = lad_information.merge(lad_to_csp, on='lad-code', how='left')
     success("'Lad Information' and 'Lad to CSP'data merged (on: lad-code, how: left)")
+
+    # Keep only rows from England or Wales
+    lad_information = lad_information[lad_information['nation'].isin(['England', 'Wales'])]
+    lad_information = lad_information[lad_information['lad-code'].notna() & (lad_information['lad-code'] != 'nan')]
+    lad_information = patch_missing_coordinates(lad_information)
 
     columns_to_drop = [
         "local-authority-code", "official-name", "start-date", "end-date", "replaced-by",

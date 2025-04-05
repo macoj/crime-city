@@ -39,5 +39,6 @@ This script will:
 
 - [x] As _population_sorted.csv_ contains LAD values, it must be preprocessed in the same way as the Crime Data and Population Matrix.
 - [ ] Analyze whether the diagonals of the commuters matrix should be considered as the total population of a city
+- [ ] In the preprocessed LAD_information.csv, analyze the CSPs that share the same LAD name (Buckinghamshire) but have different CSP names (Aylesbury Vale, Chiltern, South Bucks, Wycombe). This behavior is the opposite of what was intended.
 - [ ] Check if we need to include the probability distributions plot (elasticity)
 - [ ] Improve Plots quality

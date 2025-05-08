@@ -4,7 +4,8 @@ import matplotlib.pyplot as plt
 import networkx as nx
 from matplotlib.lines import Line2D
 
-from config import PREPROCESSED_CSP_LOCATIONS, PREPROCESSED_POPULATION_MATRIX_CSV, SHOW_CSP_NAMES_ON_PLOT
+from config import PREPROCESSED_CSP_LOCATIONS, PREPROCESSED_POPULATION_MATRIX_CSV, SHOW_CSP_NAMES_MAP_PLOT, \
+    PREPROCESSED_CSP_POPULATION_CSV, SCALE_CSP_NODES_BY_POPULATION_MAP_PLOT, NODE_SCALING_FACTOR_MAP_PLOT
 
 
 def plot_commuting_map(output_path):
@@ -20,6 +21,7 @@ def plot_commuting_map(output_path):
 
     df = pd.read_csv(PREPROCESSED_POPULATION_MATRIX_CSV, index_col=0)
     csps = pd.read_csv(PREPROCESSED_CSP_LOCATIONS, delimiter=",")
+    population = pd.read_csv(PREPROCESSED_CSP_POPULATION_CSV, delimiter=",")
     population_matrix = pd.read_csv(PREPROCESSED_POPULATION_MATRIX_CSV, delimiter=",")
 
     csps["lat"] = csps["lat"].astype(str).str.replace(",", ".").astype(float)
@@ -47,8 +49,14 @@ def plot_commuting_map(output_path):
     ax.set_ylim(49.5, 59.5)
 
     for city, (lon, lat) in city_locations.items():
-        ax.scatter(lon, lat, color="blue", alpha=0.6)
-        if SHOW_CSP_NAMES_ON_PLOT:
+        pop_row = population.loc[population['Local Authority'] == city, 'Population']
+        if not pop_row.empty and SCALE_CSP_NODES_BY_POPULATION_MAP_PLOT:
+            city_pop = pop_row.values[0]
+            size = city_pop / NODE_SCALING_FACTOR_MAP_PLOT
+        else:
+            size = 50
+        ax.scatter(lon, lat, color="blue", alpha=0.6, s=size)
+        if SHOW_CSP_NAMES_MAP_PLOT:
             ax.text(lon, lat, city, fontsize=8, ha='right', va='bottom', alpha=0.7)
 
     incoming_color = '#FF0000'

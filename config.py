@@ -32,6 +32,8 @@ PREPROCESSED_CRIME_DATA_CSV = 'data/preprocessed/crime_data_by_csp.csv'
 PREPROCESSED_CSP_LOCATIONS = 'data/preprocessed/csp_locations.csv'
 PREPROCESSED_CSP_POPULATION_CSV = 'data/preprocessed/csp_population.csv'
 
-SHOW_CSP_NAMES_ON_PLOT = False
+SHOW_CSP_NAMES_MAP_PLOT = False
+SCALE_CSP_NODES_BY_POPULATION_MAP_PLOT = False
+NODE_SCALING_FACTOR_MAP_PLOT = 3000
 
 LOG_MATCHING_CSPS_DATA = True

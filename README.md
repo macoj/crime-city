@@ -38,7 +38,7 @@ This script will:
 ## TODO
 
 - [x] As _population_sorted.csv_ contains LAD values, it must be preprocessed in the same way as the Crime Data and Population Matrix.
-- [x] Analyze whether the diagonals of the commuters matrix should be considered as the total population of a city [we removed because we already use a data for the total population of a specific CSP]
-- [x] In the preprocessed LAD_information.csv, analyze the CSPs that share the same LAD name (Buckinghamshire) but have different CSP names (Aylesbury Vale, Chiltern, South Bucks, Wycombe). This behavior is the opposite of what was intended. [only 15 datapoints have this weird behavior, and it only affects the map plot]
+- [x] Analyze whether the diagonals of the commuters matrix should be considered as the total population of a city **[we removed because we already use a data for the total population of a specific CSP]**
+- [x] In the preprocessed LAD_information.csv, analyze the CSPs that share the same LAD name (Buckinghamshire) but have different CSP names (Aylesbury Vale, Chiltern, South Bucks, Wycombe). This behavior is the opposite of what was intended. **[only 15 datapoints have this weird behavior, and it only affects the map plot]**
 - [ ] Check if we need to include the probability distributions plot (elasticity)
 - [ ] Improve Plots quality

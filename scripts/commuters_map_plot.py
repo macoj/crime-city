@@ -13,7 +13,8 @@ def plot_commuting_map(output_path):
         counties = gpd.read_file('lib/uk_admin_map_shapefile/Map_UK.shp')
         counties = counties[counties["NAME_1"] != "Northern Ireland"]
         counties = counties[counties["NAME_1"] != "Scotland"]
-        counties = counties.to_crs(epsg=4326)
+        counties = counties.to_crs("EPSG:27700")
+
         counties.plot(ax=ax, color='whitesmoke', edgecolor='gainsboro')
 
     min_weight = 500
@@ -38,6 +39,21 @@ def plot_commuting_map(output_path):
         for city in cities if city in valid_cities
     }
 
+    from shapely.geometry import Point
+
+    city_points = gpd.GeoDataFrame(
+        list(city_locations.items()),
+        columns=["city", "coords"],
+        geometry=[Point(lon, lat) for lon, lat in city_locations.values()],
+        crs="EPSG:4326"
+    ).to_crs("EPSG:27700")
+
+    # Map city names back to x/y for plotting
+    city_xy = {
+        row["city"]: (row.geometry.x, row.geometry.y)
+        for _, row in city_points.iterrows()
+    }
+
     fig = plt.figure(figsize=figsize)
     gs = fig.add_gridspec(1, 2, width_ratios=[4, 1])
     ax = fig.add_subplot(gs[0])
@@ -45,34 +61,33 @@ def plot_commuting_map(output_path):
     ax.set_aspect("equal")
     map_plot(ax)
 
-    ax.set_xlim(-8.5, 2.5)
-    ax.set_ylim(49.5, 59.5)
 
-    for city, (lon, lat) in city_locations.items():
+    for city, (x, y) in city_xy.items():
         pop_row = population.loc[population['Local Authority'] == city, 'Population']
         if not pop_row.empty and SCALE_CSP_NODES_BY_POPULATION_MAP_PLOT:
             city_pop = pop_row.values[0]
             size = city_pop / NODE_SCALING_FACTOR_MAP_PLOT
         else:
             size = 50
-        ax.scatter(lon, lat, color="blue", alpha=0.6, s=size)
+        ax.scatter(x, y, color="blue", alpha=0.6, s=size)
         if SHOW_CSP_NAMES_MAP_PLOT:
-            ax.text(lon, lat, city, fontsize=8, ha='right', va='bottom', alpha=0.7)
+            ax.text(x, y, city, fontsize=8, ha='right', va='bottom', alpha=0.7)
+
 
     incoming_color = '#FF0000'
     outgoing_color = '#00AA00'
 
     G = nx.DiGraph()
-    for city1, coords1 in city_locations.items():
-        for city2, coords2 in city_locations.items():
+    for city1, coords1 in city_xy.items():
+        for city2, coords2 in city_xy.items():
             if city1 != city2:
                 weight = df.loc[city1, city2]
                 if weight > min_weight:
                     G.add_edge(city1, city2, weight=weight)
 
     for city1, city2, data_dict in G.edges(data=True):
-        (lon1, lat1) = city_locations[city1]
-        (lon2, lat2) = city_locations[city2]
+        (x1, y1) = city_xy[city1]
+        (x2, y2) = city_xy[city2]
 
         if df.loc[city2, city2] > df.loc[city1, city1]:
             color = incoming_color
@@ -80,7 +95,7 @@ def plot_commuting_map(output_path):
             color = outgoing_color
 
         ax.plot(
-            [lon1, lon2], [lat1, lat2],
+            [x1, x2], [y1, y2],
             color=color, alpha=0.5,
             linewidth=data_dict["weight"] / 5000
         )
@@ -109,4 +124,4 @@ def plot_commuting_map(output_path):
 
     plt.tight_layout()
     plt.savefig(f'{output_path}/england_wales_commuting.pdf', dpi=300, bbox_inches='tight', pad_inches=0)
-    plt.show()
+    # plt.show()

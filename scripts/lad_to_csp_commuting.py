@@ -16,7 +16,7 @@ def patch_missing_coordinates(df):
 
 
 def load_and_merge_data():
-    lad_information = pd.read_csv('data/lad_information.csv', delimiter=';')
+    lad_information = pd.read_csv('data/lad_information.csv')
     lad_to_csp = pd.read_csv('data/lad_to_csp.csv', delimiter=';')
 
     lad_information['lad-code'] = lad_information['lad-code'].astype(str).str.strip()

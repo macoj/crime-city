@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.linear_model import Ridge
+from lib.residual_test import residual_sami_test
 
 from config import PREPROCESSED_POPULATION_MATRIX_CSV, PREPROCESSED_CRIME_DATA_CSV, PREPROCESSED_CSP_POPULATION_CSV
 from lib.helpers import seaborn_styles
@@ -20,16 +21,6 @@ def calculate_aic_bic(y_true, y_pred, n_params):
 
 
 def ridge_regression_metrics(model, x_values, y_true):
-    """
-    Calculate and display the R-squared, Mean Squared Error (MSE), and Bayesian Information Criterion (BIC)
-    for a given ridge regression model.
-
-    :param model: Fitted Ridge regression model.
-    :param x_values: Independent variables (features) used for the model.
-    :param y_true: True dependent variable values (target).
-    :return: Dictionary containing R-squared, MSE, and BIC.
-    """
-    # Predict values
     y_pred = model.predict(x_values)
 
     # Calculate metrics
@@ -332,4 +323,13 @@ def crime_regression_plot(output_path):
         ridge_scaling, aic_scaling, bic_scaling,
         ridge_cobb, aic_cobb, bic_cobb,
         ridge_translog, aic_translog, bic_translog
+    )
+
+    residual_sami_test(
+        final_df=final_df,
+        ridge_scaling=ridge_scaling,
+        ridge_cobb=ridge_cobb,
+        ridge_translog=ridge_translog,
+        output_path=output_path,
+        crime_tag="offences"  # or "theft", "burglary", etc.
     )

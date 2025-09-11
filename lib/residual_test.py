@@ -26,9 +26,7 @@ def _scatter(ax, x, y, title, xlabel, ylabel, annotate=None):
 
 
 def _laplace_plot(sami, out_path, tag):
-    """Histogram + Laplace PDF and KS test summary."""
     loc, scale = laplace.fit(sami)
-    # KS test against fitted Laplace
     D, p = kstest(sami, 'laplace', args=(loc, scale))
 
     fig, ax = plt.subplots(figsize=(7, 5))
@@ -49,7 +47,6 @@ def _laplace_plot(sami, out_path, tag):
 
 
 def _rank_plot(final_df, sami, out_path, tag, top_k=10):
-    """Rank-ordered SAMIs (like classic SAMI figures)."""
     rank_df = pd.DataFrame({
         "CSP": final_df["CSP Name"].values if "CSP Name" in final_df.columns else np.arange(len(sami)),
         "SAMI": sami
@@ -67,7 +64,6 @@ def _rank_plot(final_df, sami, out_path, tag, top_k=10):
     plt.show()
     plt.close(fig)
 
-    # Return top/bottom labels for tables if needed
     return {
         "top": rank_df.head(top_k)[["CSP", "SAMI"]].to_dict(orient="records"),
         "bottom": rank_df.tail(top_k)[["CSP", "SAMI"]].to_dict(orient="records"),
@@ -82,23 +78,12 @@ def residual_sami_test(
     output_path=".",
     crime_tag="offences"
 ):
-    """
-    - Computes SAMIs for population-only model.
-    - If commuter models are provided, compares residuals (r, p, variance ratio) and plots:
-        * scatter of SAMIs (scaling vs model)
-        * KDE comparison of residuals
-    - Additionally:
-        * plots Laplace fit for population-only SAMIs
-        * plots rank-ordered SAMIs
-    Returns a dict with summary stats.
-    """
     y = final_df["log_CrimeTotal"].values
     yhat_scaling = ridge_scaling.predict(final_df[["log_Population"]])
     sami_scaling = _residuals(y, yhat_scaling)
 
     summary = {"n": len(sami_scaling)}
 
-    # ----- Laplace & rank diagnostics for population-only SAMIs
     summary["laplace"] = _laplace_plot(sami_scaling, output_path, crime_tag)
     summary["rank"] = _rank_plot(final_df, sami_scaling, output_path, crime_tag)
 
@@ -122,7 +107,6 @@ def residual_sami_test(
 
         return {"r": r, "p": p, "variance_ratio": var_ratio}
 
-    # ----- Comparisons with commuter models (if provided)
     if ridge_cobb is not None:
         yhat_cobb = ridge_cobb.predict(final_df[["log_Population", "log_Commuters"]])
         summary["scaling_vs_cobb"] = _one_compare("cobb", yhat_cobb)
@@ -132,7 +116,6 @@ def residual_sami_test(
         yhat_trans = ridge_translog.predict(X)
         summary["scaling_vs_translog"] = _one_compare("translog", yhat_trans)
 
-    # Optionally dump SAMIs for SI/reproducibility
     pd.DataFrame({
         "CSP": final_df.get("CSP Name", pd.Series(np.arange(len(sami_scaling)))),
         "SAMI_scaling": sami_scaling

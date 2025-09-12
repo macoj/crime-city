@@ -331,5 +331,5 @@ def crime_regression_plot(output_path):
         ridge_cobb=ridge_cobb,
         ridge_translog=ridge_translog,
         output_path=output_path,
-        crime_tag="offences"  # or "theft", "burglary", etc.
+        crime_tag="offences"
     )

@@ -15,7 +15,7 @@ def _residuals(y_true, y_pred):
 def _scatter(ax, x, y, title, xlabel, ylabel, annotate=None):
     ax.scatter(x, y, s=25, alpha=0.6, edgecolor="none")
     lim = [min(x.min(), y.min()), max(x.max(), y.max())]
-    ax.plot(lim, lim, "k-", linewidth=1)   # 45° line
+    ax.plot(lim, lim, "k-", linewidth=1)
     ax.set_xlim(lim); ax.set_ylim(lim)
     ax.set_title(title)
     ax.set_xlabel(xlabel); ax.set_ylabel(ylabel)
@@ -53,7 +53,7 @@ def _rank_plot(final_df, sami, out_path, tag, top_k=10):
     }).sort_values("SAMI", ascending=False).reset_index(drop=True)
 
     fig, ax = plt.subplots(figsize=(8, 4.5))
-    colors = np.where(rank_df["SAMI"] >= 0, "#b2182b", "#2166ac")  # red for above, blue for below
+    colors = np.where(rank_df["SAMI"] >= 0, "#b2182b", "#2166ac")
     ax.bar(rank_df.index, rank_df["SAMI"], color=colors, width=1.0)
     ax.set_xlim(0, len(rank_df)-1)
     ax.set_xlabel("Rank (high → low SAMI)")
